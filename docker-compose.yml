@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+  db:
+    container_name: db
+    build: ./postgres
+    restart: always
+    env_file:
+        - ./.env
+
+  node:
+    container_name: node
+    depends_on:
+        - db
+    build: ./src
+    restart: always
+    env_file:
+        - ./.env
+    ports:
+        - "${NODE_PORT}:8080"
+    volumes:
+        - ./src/:/app
