@@ -1,0 +1,21 @@
+{
+  "name": "climate-map-backend",
+  "version": "0.0.1",
+  "main": "server.js",
+  "repository": "git@github.com:AvoinOrg/climate-map-backend.git",
+  "author": "Petja Valkama <petja@avoin.org>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "nodemon server",
+    "build": "node server"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "prettier": "^2.1.1"
+  }
+}
