@@ -10,3 +10,5 @@ ARG POSTGRES_DB="test_db"
 ENV POSTGRES_DB=${POSTGRES_DB}
 
 COPY ./*.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432

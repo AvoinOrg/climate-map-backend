@@ -1,36 +1,32 @@
-const express = require('express');
-const { Pool } = require('pg')
+const express = require('express')
+const passport = require('passport')
+const bodyParser = require('body-parser')
 
-const pool = new Pool({
-    host: process.env.POSTGRES_HOST,
-    user: process.env.POSTGRES_USER,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
-    port: process.env.POSTGRES_PORT,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-})
+require('./auth/auth')
+const routes = require('./routes/routes')
+const secureRoutes = require('./routes/secure-routes')
 
-const app = express();
-app.get('*', (req, res) => {
-    pool.connect().then(client => {
-        client.query('select * from account', []).then(result => {
-          console.log('hello from', result.rows[0].email)
-          res.status(200).end()
-        })
-        .catch(e => {
-          console.error('query error', e.message, e.stack)
-          res.status(500).end()
-        })
-      })
-});
-
+const app = express()
 const port = 8080
 
-app.listen(8080, err => {
-    if (err) {
-        throw err;
-    }
-    console.log("> Ready on http://localhost:" + port);
+app.use(bodyParser.urlencoded({ extended: false }))
+
+app.use('/', routes)
+app.use('/user', passport.authenticate('jwt', { session: false }), secureRoutes)
+
+app.get('*', (req, res) => {
+    console.log('catch')
+    res.status(404)
+    res.json({ error: 'not found' })
+})
+
+app.use((err, req, res, next) => {
+    console.log(err)
+    res.status(err.status || 500)
+    res.json({ error: err })
+})
+
+app.listen(8080, () => {
+    console.log('here!')
+    console.log('> Ready on http://localhost:' + port)
 })
