@@ -15,7 +15,6 @@ app.use('/', routes)
 app.use('/user', passport.authenticate('jwt', { session: false }), secureRoutes)
 
 app.get('*', (req, res) => {
-    console.log('catch')
     res.status(404)
     res.json({ error: 'not found' })
 })
@@ -27,6 +26,5 @@ app.use((err, req, res, next) => {
 })
 
 app.listen(8080, () => {
-    console.log('here!')
     console.log('> Ready on http://localhost:' + port)
 })
