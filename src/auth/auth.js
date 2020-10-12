@@ -49,7 +49,7 @@ passport.use(
     new JWTstrategy(
         {
             secretOrKey: process.env.JWT_SECRET,
-            jwtFromRequest: ExtractJWT.fromBodyField('token'),
+            jwtFromRequest: ExtractJWT.fromUrlQueryParameter('token'),
         },
         async (token, done) => {
             try {

@@ -17,9 +17,21 @@ const handleLogin = async (req, res, next, strategy) => {
                 if (err) {
                     return next(err)
                 }
+                const expiresIn = 86400
+
                 const body = { id: user.id, email: user.email }
-                const token = jwt.sign({ user: body }, secret)
-                return res.json({ token })
+                const token = jwt.sign(
+                    { user: body, ts: Math.floor(Date.now() / 1000) },
+                    secret,
+                    {
+                        expiresIn: expiresIn,
+                    }
+                )
+
+                return res.json({
+                    token: 'Bearer ' + token,
+                    expires: expiresIn,
+                })
             })
         } catch (e) {
             return next(e)
