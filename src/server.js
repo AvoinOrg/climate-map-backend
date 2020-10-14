@@ -11,6 +11,12 @@ const port = 8080
 
 app.use(bodyParser.urlencoded({ extended: false }))
 
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 app.use('/', routes)
 app.use('/user', passport.authenticate('jwt', { session: false }), secureRoutes)
 
@@ -24,6 +30,7 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500)
     res.json({ error: err })
 })
+
 
 app.listen(8080, () => {
     console.log('> Ready on http://localhost:' + port)
