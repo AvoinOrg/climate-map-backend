@@ -6,24 +6,6 @@ const ExtractJWT = require('passport-jwt').ExtractJwt
 const User = require('../db/user')
 
 passport.use(
-    'signup',
-    new localStrategy(
-        {
-            usernameField: 'email',
-            passwordField: 'password',
-        },
-        async (email, password, done) => {
-            try {
-                const user = await User.create(email, password)
-                return done(null, user)
-            } catch (e) {
-                return done(e)
-            }
-        }
-    )
-)
-
-passport.use(
     'login',
     new localStrategy(
         {
@@ -35,11 +17,11 @@ passport.use(
                 const user = await User.find(email)
                 const validate = await User.isValidPassword(user, password)
                 if (!validate) {
-                    return done({ status: 401, message: 'invalid password' })
+                    return done({ status: 401, message: 'invalid username or password' })
                 }
                 return done(null, user, { message: 'logged in successfully' })
-            } catch (e) {
-                done(e)
+            } catch (err) {
+                done(err)
             }
         }
     )

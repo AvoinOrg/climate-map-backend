@@ -2,12 +2,14 @@ const express = require('express')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 
+const User = require('../db/user')
+
 const router = express.Router()
 
 const secret = process.env.JWT_SECRET
 
-const handleLogin = async (req, res, next, strategy) => {
-    passport.authenticate(strategy, async (err, user) => {
+const handleLogin = async (req, res, next) => {
+    passport.authenticate('login', async (err, user) => {
         try {
             if (err) {
                 return next(err)
@@ -19,7 +21,7 @@ const handleLogin = async (req, res, next, strategy) => {
                 }
                 const expiresIn = 86400
 
-                const body = { id: user.id, email: user.email }
+                const body = { id: user.id }
                 const token = jwt.sign(
                     { user: body, ts: Math.floor(Date.now() / 1000) },
                     secret,
@@ -33,18 +35,23 @@ const handleLogin = async (req, res, next, strategy) => {
                     expires: expiresIn,
                 })
             })
-        } catch (e) {
-            return next(e)
+        } catch (err) {
+            return next(err)
         }
     })(req, res, next)
 }
 
 router.post('/signup', async (req, res, next) => {
-    handleLogin(req, res, next, 'signup')
+    try {
+        await User.save(req.body)
+    } catch (err) {
+        return next(err)
+    }
+    handleLogin(req, res, next)
 })
 
 router.post('/login', async (req, res, next) => {
-    handleLogin(req, res, next, 'login')
+    handleLogin(req, res, next)
 })
 
 module.exports = router
