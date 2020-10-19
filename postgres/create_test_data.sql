@@ -1,7 +1,7 @@
 INSERT INTO 
-    account(email, pw)
+    account(email, pw, name, phone_number)
 VALUES 
-    ('asdf@asdf.com', '1234'),
-    ('test1@test.com', 'asdfg')
+    ('asdf@asdf.com', '1234', "Test Testington", "0401234567"),
+    ('test1@test.com', 'asdfg', "Ma Ria", "+35501234568")
 ;
     
