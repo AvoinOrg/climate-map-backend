@@ -14,7 +14,7 @@ passport.use(
         },
         async (email, password, done) => {
             try {
-                const user = await User.find(email)
+                const user = await User.findByEmail(email)
                 const validate = await User.isValidPassword(user, password)
                 if (!validate) {
                     return done({ status: 401, message: 'invalid username or password' })
@@ -36,8 +36,8 @@ passport.use(
         async (token, done) => {
             try {
                 return done(null, token.user)
-            } catch (e) {
-                done(e)
+            } catch (err) {
+                done(err)
             }
         }
     )

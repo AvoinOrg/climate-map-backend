@@ -7,15 +7,18 @@ const routes = require('./routes/routes')
 const secureRoutes = require('./routes/secure-routes')
 
 const app = express()
-const port = 8080
 
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept'
+    )
+    next()
+})
 
 app.use('/', routes)
 app.use('/user', passport.authenticate('jwt', { session: false }), secureRoutes)
@@ -26,12 +29,9 @@ app.get('*', (req, res) => {
 })
 
 app.use((err, req, res, next) => {
-    console.log(err)
+    !err.status && console.log(err)
     res.status(err.status || 500)
     res.json({ error: err })
 })
 
-
-app.listen(8080, () => {
-    console.log('> Ready on http://localhost:' + port)
-})
+module.exports = app

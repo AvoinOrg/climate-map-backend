@@ -43,7 +43,7 @@ const handleLogin = async (req, res, next) => {
 
 router.post('/signup', async (req, res, next) => {
     try {
-        await User.save(req.body)
+        await User.create(req.body)
     } catch (err) {
         return next(err)
     }

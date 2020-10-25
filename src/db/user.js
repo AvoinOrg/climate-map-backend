@@ -1,37 +1,23 @@
 const bcrypt = require('bcrypt')
 
+const utils = require('./utils')
 const pool = require('./connection')
 
-const parseRow = (rows) => {
-    if (rows[0]) {
-        return {
-            email: rows[0].email,
-            password: rows[0].pw,
-        }
-    }
-    return null
-}
-
-const save = async (values) => {
+const create = async (values) => {
     try {
         const con = await pool.connect()
         const hash = await bcrypt.hash(values.password, 10)
 
         res = await con.query(
             `
-            INSERT INTO account (email, pw, name, phone_number) 
-            VALUES($1, $2, $3, $4)
+            INSERT INTO user_account (email, password, name, phone_number, type) 
+            VALUES($1, $2, $3, $4, $5)
             RETURNING *
             `,
-            [
-                values.email,
-                hash,
-                values.name ? values.name : null,
-                values.phoneNumber ? values.phoneNumber : values.phoneNumber,
-            ]
+            [values.email, hash, values.name, values.phone_number, values.type]
         )
 
-        return parseRow(res.rows)
+        return utils.parseRow(res.rows)
     } catch (err) {
         if (err.code === '23505') {
             throw {
@@ -44,12 +30,25 @@ const save = async (values) => {
     }
 }
 
-const find = async (email) => {
+const findByEmail = async (email) => {
     try {
         const con = await pool.connect()
-        res = await con.query(`SELECT * FROM account WHERE email = $1`, [email])
+        res = await con.query(`SELECT * FROM user_account WHERE email = $1`, [
+            email,
+        ])
 
-        return parseRow(res.rows)
+        return utils.parseRow(res.rows)
+    } catch (err) {
+        throw err
+    }
+}
+
+const findById = async (id) => {
+    try {
+        const con = await pool.connect()
+        res = await con.query(`SELECT * FROM user_account WHERE id = $1`, [id])
+
+        return utils.parseRow(res.rows)
     } catch (err) {
         throw err
     }
@@ -63,6 +62,6 @@ const isValidPassword = async (user, password) => {
     return compare
 }
 
-const User = { save, find, isValidPassword }
+const User = { create, findByEmail, findById, isValidPassword }
 
 module.exports = User
