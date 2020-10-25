@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ "$NODE_ENV" = "production" ]; then
-    npm install --only=prod && npm run build
+    yarn install --only=prod && yarn run build && node server;
 else
-    npm install && npm start
+    yarn install && yarn start;
 fi

@@ -1,14 +1,13 @@
 FROM library/postgres
 
-ARG POSTGRES_USER="test"
 ENV POSTGRES_USER=${POSTGRES_USER}
 
-ARG POSTGRES_PASSWORD="1234"
 ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
-ARG POSTGRES_DB="test_db"
 ENV POSTGRES_DB=${POSTGRES_DB}
+ENV POSTGRES_TEST_DB=${POSTGRES_TEST_DB}
 
-COPY ./*.sql /docker-entrypoint-initdb.d/
+COPY ./*.sql /sql_scripts/
+COPY ./*.sh /docker-entrypoint-initdb.d/
 
 EXPOSE 5432

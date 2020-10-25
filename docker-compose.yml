@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   db:
-    container_name: db
+    container_name: climate-map-db
     build: ./postgres
     restart: always
     env_file:
@@ -10,10 +10,11 @@ services:
     ports:
         - "${POSTGRES_PORT}:5432"
     volumes:
-        - ./postgres/database:/var/lib/postgresql
+        - ./postgres/database:/var/lib/postgresql:z
+        - sql_scripts:/sql_scripts:z
 
   node:
-    container_name: node
+    container_name: climate-map-node
     depends_on:
         - db
     build: ./src
@@ -23,4 +24,9 @@ services:
     ports:
         - "${NODE_PORT}:8080"
     volumes:
-        - ./src/:/app
+        - ./src/:/home/node/app:z
+        - sql_scripts:/sql_scripts:z
+
+volumes:
+    sql_scripts:
+

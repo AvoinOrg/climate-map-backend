@@ -24,14 +24,19 @@ ENV POSTGRES_PORT=${POSTGRES_PORT}
 ARG JWT_SECRET="very_secret"
 ENV JWT_SECRET=${JWT_SECRET}
 
-WORKDIR /app
+RUN mkdir -p /home/node/app/node_modules
+
+WORKDIR /home/node/app
 
 COPY package*.json ./
 COPY docker-entrypoint.sh ./
 
-RUN npm install
+RUN chown -R node:node /home/node/app
+
+
+USER node
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/bash", "/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/home/node/app/docker-entrypoint.sh"]
 
