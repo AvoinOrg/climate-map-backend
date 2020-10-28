@@ -3,6 +3,7 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 
 const User = require('../db/user')
+const Integrations = require('../db/integrations')
 
 const router = express.Router()
 
@@ -22,17 +23,14 @@ const handleLogin = async (req, res, next) => {
                 const expiresIn = 86400
 
                 const body = { id: user.id }
-                const token = jwt.sign(
-                    { user: body, ts: Math.floor(Date.now() / 1000) },
-                    secret,
-                    {
-                        expiresIn: expiresIn,
-                    }
-                )
+                const ts = Math.floor(Date.now())
+                const token = jwt.sign({ user: body }, secret, {
+                    expiresIn: expiresIn,
+                })
 
                 return res.json({
-                    token: 'Bearer ' + token,
-                    expires: expiresIn,
+                    token,
+                    expires: ts + expiresIn * 1000,
                 })
             })
         } catch (err) {
@@ -43,15 +41,21 @@ const handleLogin = async (req, res, next) => {
 
 router.post('/signup', async (req, res, next) => {
     try {
-        await User.create(req.body)
+        const user = await User.create(req.body)
+        await Integrations.create({ user_id: user.id })
+
+        handleLogin(req, res, next)
     } catch (err) {
         return next(err)
     }
-    handleLogin(req, res, next)
 })
 
 router.post('/login', async (req, res, next) => {
-    handleLogin(req, res, next)
+    try {
+        handleLogin(req, res, next)
+    } catch (err) {
+        return next(err)
+    }
 })
 
 module.exports = router
