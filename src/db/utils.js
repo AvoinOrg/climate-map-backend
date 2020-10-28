@@ -12,17 +12,16 @@ module.exports = {
         const vals = []
 
         for (v in values) {
-            if (v in allowed) {
+            if (allowed.includes(v)) {
                 s += `${v} = $${i}, `
-                vals.append(values[v])
+                vals.push(values[v])
                 i++
             }
         }
 
         s = s.substr(0, s.length - 2)
-
         q = { string: s, values: vals }
 
-        return s
+        return q
     },
 }
