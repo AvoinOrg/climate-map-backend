@@ -1,14 +1,11 @@
-const bcrypt = require('bcrypt')
-
 const utils = require('./utils')
 const pool = require('./connection')
 
-const updateableCols = ['has_vipu', 'has_metsaan']
+const updateableCols = ['vipu_state', 'metsaan_state']
 
 const create = async (values) => {
     try {
-        const con = await pool.connect()
-        res = await con.query(
+        res = await pool.query(
             `
             INSERT INTO user_integrations (user_account_id) 
             VALUES ($1)
@@ -25,8 +22,7 @@ const create = async (values) => {
 
 const findByUserId = async (userId) => {
     try {
-        const con = await pool.connect()
-        res = await con.query(
+        res = await pool.query(
             `SELECT * FROM user_integrations WHERE user_account_id = $1`,
             [userId]
         )
@@ -39,12 +35,10 @@ const findByUserId = async (userId) => {
 
 const updateByUserId = async (userId, values) => {
     const q = utils.valuesToUpdateString(values, updateableCols)
-
     try {
-        const con = await pool.connect()
-        res = await con.query(
-            `UPDATE user_integrations SET ${q.string} WHERE user_account_id = $1`,
-            [userId] + q.values
+        res = await pool.query(
+            `UPDATE user_integrations SET ${q.string} WHERE user_account_id = $1 RETURNING *`,
+            [userId].concat(q.values)
         )
 
         return utils.parseRow(res.rows)
