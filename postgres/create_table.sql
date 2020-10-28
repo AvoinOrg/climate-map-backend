@@ -6,15 +6,16 @@ CREATE TABLE user_account (
     password varchar NOT NULL,
     name varchar,
     phone_number varchar,
-    UNIQUE(email),
-    type varchar DEFAULT 'explorer'
+    funnel_state INT DEFAULT 1,
+    account_type varchar DEFAULT 'explorer',
+    UNIQUE(email)
 );
 
 CREATE TABLE user_integrations (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_account_id uuid NOT NULL,
-    has_vipu boolean DEFAULT FALSE,
-    has_metsaan boolean DEFAULT FALSE,
+    vipu_state INT DEFAULT -1,
+    metsaan_state INT DEFAULT -1,
     CONSTRAINT fk_user_account
       FOREIGN KEY(user_account_id) 
 	    REFERENCES user_account(id)
