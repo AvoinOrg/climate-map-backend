@@ -1,4 +1,4 @@
-FROM node:14.9
+FROM node:15.0
 
 ARG NODE_ENV="development"
 ENV NODE_ENV=${NODE_ENV}
@@ -32,7 +32,6 @@ COPY package*.json ./
 COPY docker-entrypoint.sh ./
 
 RUN chown -R node:node /home/node/app
-
 
 USER node
 
