@@ -16,8 +16,6 @@ const wfsUrl =
 const statuses = {}
 const vetumaIds = {}
 
-const wfsVals = {}
-
 const parseXml = async (data) => {
     const parser = new xml2js.Parser()
     const parsed = await util.promisify(parser.parseString.bind(parser))(data)
@@ -91,18 +89,17 @@ const checkAuth = async (userId) => {
             parsed = await parseXml(data)
 
             const done = parsed['viesti']['$']['valmis']
-            if (done === 'true') {
+            if (done === 'true' && statuses[userId] === 0) {
                 delete vetumaIds[userId]
-
                 importFields(userId, data)
-
                 statuses[userId] = 1
             }
         }
 
         return statuses[userId]
     } catch (err) {
-        throw err
+        statuses[userId] = -1
+        return -1
     }
 }
 
@@ -152,12 +149,15 @@ const importFields = async (userId, data) => {
 
         const fieldString = await JSON.stringify(fieldData)
 
-        await fse.outputJSON('/data/' + userId + '/peltolohkoraja.geojson', fieldString)
+        await fse.outputJSON(
+            '/data/' + userId + '/peltolohkoraja.geojson',
+            fieldString
+        )
 
         statuses[userId] = 2
     } catch (err) {
-        console.error(err)
         statuses[userId] = -1
+        console.error(err)
     }
 }
 
