@@ -1,24 +1,26 @@
 const express = require('express')
 const passport = require('passport')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
 require('./auth/auth')
 const routes = require('./routes/routes')
 const secureRoutes = require('./routes/secure-routes')
 
-const app = express()
+const app = express().use("*", cors())
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept'
-    )
-    next()
-})
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*')
+//     res.header(
+//         'Access-Control-Allow-Headers',
+//         'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+//     )
+//     res.header('Access-Control-Allow-Methods', 'DELETE, POST, GET, OPTIONS')
+//     next()
+// })
 
 app.use('/', routes)
 app.use('/user', passport.authenticate('jwt', { session: false }), secureRoutes)
