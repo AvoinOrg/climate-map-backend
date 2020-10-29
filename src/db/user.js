@@ -68,10 +68,20 @@ const findById = async (id) => {
 const updateById = async (id, values) => {
     try {
         const user = await findById(id)
-        if (!isValidPassword(user, values.password)) {
-            throw {
-                status: 409,
-                message: 'invalid password',
+
+        const keys = Object.keys(values)
+
+        if (
+            keys.includes('password') ||
+            keys.includes('email') ||
+            keys.includes('name') ||
+            keys.includes('phone_number')
+        ) {
+            if (!isValidPassword(user, values.password)) {
+                throw {
+                    status: 409,
+                    message: 'invalid password',
+                }
             }
         }
 
@@ -83,7 +93,7 @@ const updateById = async (id, values) => {
         }
 
         const q = utils.valuesToUpdateString(values, updateableCols)
-        
+
         res = await pool.query(
             `UPDATE user_account SET ${q.string} WHERE id = $1 RETURNING *`,
             [id].concat(q.values)

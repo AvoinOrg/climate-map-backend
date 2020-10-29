@@ -1,7 +1,9 @@
 const xml2js = require('xml2js')
 const axios = require('axios')
 const util = require('util')
-const fse = require('fs-extra')
+const ogr2ogr = require('ogr2ogr')
+const fs = require('fs')
+const { pipeline } = require('stream/promises')
 
 const opengateUrl =
     process.env.NODE_ENV === 'production'
@@ -147,11 +149,21 @@ const importFields = async (userId, data) => {
             'mavi:PERUSLOHKORAJA'
         )
 
-        const fieldString = await JSON.stringify(fieldData)
+        const path = '/data/' + userId
+        if (!fs.existsSync(path)) {
+            await fs.promises.mkdir(path, { recursive: true })
+        }
 
-        await fse.outputJSON(
-            '/data/' + userId + '/peltolohkoraja.geojson',
-            fieldString
+        await pipeline(
+            ogr2ogr(fieldData)
+                .format('GeoJSON')
+                .options(['-s_srs', 'EPSG:3067', '-t_srs', 'EPSG:4326'])
+                .stream(),
+            async (data) => {
+                data.pipe(
+                    fs.createWriteStream(path + '/peltolohkoraja.geojson')
+                )
+            }
         )
 
         statuses[userId] = 2
@@ -205,4 +217,8 @@ const fetchData = async (wfsUrl, sessionId, dataType) => {
     }
 }
 
-module.exports = { initAuth, checkAuth }
+const removeData = async (userId) => {
+    fs.unlinkSync('/data/' + userId + '/peltolohkoraja.geojson')
+}
+
+module.exports = { initAuth, checkAuth, removeData }

@@ -114,6 +114,17 @@ it('updating user profile works', async (done) => {
     done()
 })
 
+it('updating user funnel state works', async (done) => {
+    const res = await request
+        .put('/user/profile')
+        .query({ token })
+        .send({ funnel_state: 2 })
+
+    expect(res.status).toBe(200)
+    expect(res.body.funnel_state).toBe(2)
+    done()
+})
+
 it('updating user password works', async (done) => {
     const newPassword = 'ggasdfasg'
     let res = await request.put('/user/profile').query({ token }).send({
@@ -144,10 +155,10 @@ it('updating user integrations works', async (done) => {
     const res = await request
         .put('/user/integrations')
         .query({ token })
-        .send({ metsaan_state: 0, vipu_state: 0 })
+        .send({ metsaan_state: 1, vipu_state: 1 })
     expect(res.status).toBe(200)
-    expect(res.body.metsaan_state).toBe(0)
-    expect(res.body.metsaan_state).toBe(0)
+    expect(res.body.metsaan_state).toBe(1)
+    expect(res.body.metsaan_state).toBe(1)
     done()
 })
 

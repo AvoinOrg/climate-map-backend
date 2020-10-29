@@ -1,11 +1,10 @@
 const express = require('express')
-const fse = require('fs-extra')
+const fs = require('fs')
 const { pipeline } = require('stream/promises')
 
 const User = require('../db/user')
 const Integrations = require('../db/integrations')
 const Vipu = require('../integrations/vipu')
-const JSONStream = require('JSONStream')
 
 const router = express.Router()
 
@@ -53,6 +52,12 @@ router.get('/integrations', async (req, res, next) => {
 
 router.put('/integrations', async (req, res, next) => {
     try {
+        if ('vipu_state' in req.body && req.body.vipu_state <= 0) {
+            const oldIntegrations = await Integrations.findByUserId(req.user.id)
+            if (oldIntegrations.vipu_state === 1) {
+                Vipu.removeData(req.user.id)
+            }
+        }
         const integrations = await Integrations.updateByUserId(
             req.user.id,
             req.body
@@ -99,9 +104,9 @@ router.get('/integrations/vipu/status', async (req, res, next) => {
 router.get('/data', async (req, res, next) => {
     try {
         await pipeline(
-            fse.createReadStream('/data/' + req.user.id + '/' + req.query.file),
+            fs.createReadStream('/data/' + req.user.id + '/' + req.query.file),
             async (data) => {
-                data.pipe(JSONStream.parse()).pipe(res)
+                data.pipe(res)
             }
         )
     } catch (err) {
