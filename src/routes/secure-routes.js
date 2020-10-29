@@ -5,6 +5,7 @@ const { pipeline } = require('stream/promises')
 const User = require('../db/user')
 const Integrations = require('../db/integrations')
 const Vipu = require('../integrations/vipu')
+const JSONStream = require('JSONStream')
 
 const router = express.Router()
 
@@ -99,7 +100,9 @@ router.get('/data', async (req, res, next) => {
     try {
         await pipeline(
             fse.createReadStream('/data/' + req.user.id + '/' + req.query.file),
-            async (data) => data.pipe(res)
+            async (data) => {
+                data.pipe(JSONStream.parse()).pipe(res)
+            }
         )
     } catch (err) {
         if (err.code && err.code === 'ENOENT') {
