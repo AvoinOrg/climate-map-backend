@@ -12,3 +12,9 @@ services:
     volumes:
       - ./src/:/home/node/app:z
       - ./data:/data:z
+    networks:
+      - proxy-net
+
+networks:
+  proxy-net:
+    name: proxy-net
