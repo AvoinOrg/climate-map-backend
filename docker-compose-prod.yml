@@ -1,0 +1,14 @@
+version: "3.1"
+
+services:
+  node:
+    container_name: climate-map-node
+    build: ./src
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "${NODE_PORT}:8080"
+    volumes:
+      - ./src/:/home/node/app:z
+      - ./data:/data:z
