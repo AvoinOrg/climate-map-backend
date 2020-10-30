@@ -52,7 +52,7 @@ const initAuth = async (userId) => {
 
 const opengateInit = async () => {
     var data = `<?xml version="1.0" ?>
-        \n<!DOCTYPE viesti PUBLIC "-//MMM//DTD Autentikointiviesti 1.1//FI" "http://opengate-test.mmmtike.fi/viesti_1_1.dtd">
+        \n<!DOCTYPE viesti PUBLIC "-//MMM//DTD Autentikointiviesti 1.1//FI" "${opengateUrl}/viesti_1_1.dtd">
         \n<viesti valmis="false" versio="1.2">
         \n    <data nimi="PALVELUID" arvo="TUKISOV_AS"/>
         \n    <data nimi="KIRJAUTUMISTYYPPI" arvo="WEB-ERILLIS"/>
@@ -89,7 +89,6 @@ const checkAuth = async (userId) => {
             const data = await opengateCheck(vetumaIds[userId])
 
             parsed = await parseXml(data)
-
             const done = parsed['viesti']['$']['valmis']
             if (done === 'true' && statuses[userId] === 0) {
                 delete vetumaIds[userId]
@@ -107,7 +106,7 @@ const checkAuth = async (userId) => {
 
 const opengateCheck = async (vetumaId) => {
     const data = `<?xml version="1.0" ?>
-    \n<!DOCTYPE viesti PUBLIC "-//MMM//DTD Autentikointiviesti 1.2//FI" "https://opengate-as-testi.soke.meta2.fi/viesti_1_2.dtd">
+    \n<!DOCTYPE viesti PUBLIC "-//MMM//DTD Autentikointiviesti 1.2//FI" "${opengateUrl}/viesti_1_2.dtd">
     \n<viesti valmis="false" versio="1.2">
     \n    <data nimi="VETUMAISTUNTOID" arvo="${vetumaId}"/>
     \n    <data nimi="KIRJAUTUMISTYYPPI" arvo="WEB-ERILLIS"/>
@@ -117,7 +116,7 @@ const opengateCheck = async (vetumaId) => {
 
     const config = {
         method: 'post',
-        url: 'https://opengate-as-testi.soke.meta2.fi/authenticate',
+        url: opengateUrl + '/authenticate',
         headers: {
             'Content-Type': 'text/plain',
         },
