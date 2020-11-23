@@ -15,6 +15,11 @@ const wfsUrl =
         ? process.env.WFS_URL
         : process.env.WFS_TEST_URL
 
+const features = [
+    { name: 'mavi:PELTOLOHKO', path: 'peltolohko.geojson' },
+    { name: 'mavi:KASVULOHKOGEOMETRIA', path: 'kasvulohkogeometria.json' },
+]
+
 const statuses = {}
 const vetumaIds = {}
 
@@ -132,6 +137,20 @@ const opengateCheck = async (vetumaId) => {
     }
 }
 
+const getFeature = async (wfsUrl, sessionId, featureName, path) => {
+    const data = await fetchData(wfsUrl, sessionId, featureName)
+
+    await pipeline(
+        ogr2ogr(data)
+            .format('GeoJSON')
+            .options(['-s_srs', 'EPSG:3067', '-t_srs', 'EPSG:4326'])
+            .stream(),
+        async (stream) => {
+            stream.pipe(fs.createWriteStream(path))
+        }
+    )
+}
+
 const importFields = async (userId, data) => {
     try {
         const wfsData = await registerWfs(data)
@@ -142,28 +161,21 @@ const importFields = async (userId, data) => {
             (el) => el['$']['tyyppi'] === 'WFS'
         )['_']
 
-        const fieldData = await fetchData(
-            wfsUrl,
-            sessionId,
-            'mavi:PERUSLOHKORAJA'
-        )
-
         const path = '/data/' + userId
         if (!fs.existsSync(path)) {
             await fs.promises.mkdir(path, { recursive: true })
         }
 
-        await pipeline(
-            ogr2ogr(fieldData)
-                .format('GeoJSON')
-                .options(['-s_srs', 'EPSG:3067', '-t_srs', 'EPSG:4326'])
-                .stream(),
-            async (data) => {
-                data.pipe(
-                    fs.createWriteStream(path + '/peltolohkoraja.geojson')
+        await Promise.all([
+            features.map((feature) => {
+                getFeature(
+                    wfsUrl,
+                    sessionId,
+                    feature.name,
+                    `${path}/${feature.path}`
                 )
-            }
-        )
+            }),
+        ])
 
         statuses[userId] = 2
     } catch (err) {
@@ -217,7 +229,11 @@ const fetchData = async (wfsUrl, sessionId, dataType) => {
 }
 
 const removeData = async (userId) => {
-    fs.unlinkSync('/data/' + userId + '/peltolohkoraja.geojson')
+    const path = '/data/' + userId + '/'
+
+    for (feature of features) {
+        fs.unlinkSync(path + feature.path)
+    }
 }
 
 module.exports = { initAuth, checkAuth, removeData }
