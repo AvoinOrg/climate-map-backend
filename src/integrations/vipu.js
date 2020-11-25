@@ -17,7 +17,7 @@ const wfsUrl =
 
 const features = [
     { name: 'mavi:PELTOLOHKO', path: 'peltolohko.geojson' },
-    { name: 'mavi:KASVULOHKOGEOMETRIA', path: 'kasvulohkogeometria.json' },
+    { name: 'mavi:KASVULOHKOGEOMETRIA', path: 'kasvulohkogeometria.geojson' },
 ]
 
 const statuses = {}
