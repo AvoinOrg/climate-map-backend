@@ -105,7 +105,7 @@ router.post('/integration/vipu/auth', async (req, res, next) => {
             req.user.id
         )
         res.json({
-            integration_link: link,
+            auth_link: link,
         })
     } catch (err) {
         return next(err)

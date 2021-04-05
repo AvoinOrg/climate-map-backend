@@ -203,7 +203,7 @@ it('initiating vipu authentication link works', async (done) => {
         .post('/user/integration/vipu/auth')
         .query({ token })
     expect(res.status).toBe(200)
-    expect(res.body.integration_link).toBeDefined()
+    expect(res.body.auth_link).toBeDefined()
     done()
 })
 
