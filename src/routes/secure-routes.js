@@ -3,7 +3,7 @@ const fs = require('fs')
 const { pipeline } = require('stream/promises')
 
 const User = require('../db/user')
-const Integrations = require('../db/integrations')
+const Integration = require('../db/integration')
 const Vipu = require('../integrations/vipu')
 
 const router = express.Router()
@@ -38,40 +38,61 @@ router.put('/profile', async (req, res, next) => {
     }
 })
 
-router.get('/integrations', async (req, res, next) => {
+router.get('/integration', async (req, res, next) => {
     try {
-        const integrations = await Integrations.findByUserId(req.user.id)
-        res.json({
-            vipu_state: integrations.vipu_state,
-            metsaan_state: integrations.metsaan_state,
-        })
+        const integration = await Integration.findByUserId(req.user.id)
+        if (!integration) {
+            res.json({})
+        } else {
+            res.json({
+                vipu_state: integration.vipu_state,
+                metsaan_state: integration.metsaan_state,
+            })
+        }
     } catch (err) {
         return next(err)
     }
 })
 
-router.put('/integrations', async (req, res, next) => {
+router.put('/integration/:integrationType', async (req, res, next) => {
     try {
-        if ('vipu_state' in req.body && req.body.vipu_state <= 0) {
-            const oldIntegrations = await Integrations.findByUserId(req.user.id)
-            if (oldIntegrations.vipu_state === 1) {
+        const oldIntegration = await Integration.findByUserIdAndType(
+            req.user.id,
+            req.params.integrationType
+        )
+
+        if (req.params.integrationType === "vipu") {
+            if (oldIntegration.integration_status === 1) {
                 Vipu.removeData(req.user.id)
             }
         }
-        const integrations = await Integrations.updateByUserId(
+
+        const integration = await Integration.updateByUserIdAndType(
             req.user.id,
+            req.params.integrationType,
             req.body
         )
-        res.json({
-            vipu_state: integrations.vipu_state,
-            metsaan_state: integrations.metsaan_state,
-        })
+        res.json(integration)
     } catch (err) {
         return next(err)
     }
 })
 
-router.post('/integrations/vipu/init', async (req, res, next) => {
+router.post('/integration/:integrationType', async (req, res, next) => {
+    try {
+        integration = await Integration.create(
+            req.user.id,
+            req.params.integrationType,
+            req.body
+        )
+
+        res.json(integration)
+    } catch (err) {
+        return next(err)
+    }
+})
+
+router.post('/integration/vipu/init', async (req, res, next) => {
     try {
         const link = await Vipu.initAuth(
             req.user.id,
@@ -85,12 +106,12 @@ router.post('/integrations/vipu/init', async (req, res, next) => {
     }
 })
 
-router.get('/integrations/vipu/status', async (req, res, next) => {
+router.get('/integration/vipu', async (req, res, next) => {
     try {
         const status = await Vipu.checkAuth(req.user.id)
 
         if (status === 2) {
-            await Integrations.updateByUserId(req.user.id, { vipu_state: 1 })
+            await Integration.updateByUserId(req.user.id, { vipu_state: 1 })
         }
 
         res.json({

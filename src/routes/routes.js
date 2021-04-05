@@ -3,7 +3,7 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 
 const User = require('../db/user')
-const Integrations = require('../db/integrations')
+const Integration = require('../db/integration')
 
 const router = express.Router()
 
@@ -41,8 +41,7 @@ const handleLogin = async (req, res, next) => {
 
 router.post('/signup', async (req, res, next) => {
     try {
-        const user = await User.create(req.body)
-        await Integrations.create({ user_id: user.id })
+        await User.create(req.body)
 
         handleLogin(req, res, next)
     } catch (err) {
