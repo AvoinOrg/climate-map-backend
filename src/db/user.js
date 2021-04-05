@@ -30,7 +30,7 @@ const create = async (values) => {
                 values.account_type,
             ]
         )
-        return utils.parseRow(res.rows)
+        return utils.parseRows(res.rows)
     } catch (err) {
         if (err.code === '23505') {
             throw {
@@ -49,7 +49,7 @@ const findByEmail = async (email) => {
             email,
         ])
 
-        return utils.parseRow(res.rows)
+        return utils.parseRows(res.rows)
     } catch (err) {
         throw err
     }
@@ -59,7 +59,7 @@ const findById = async (id) => {
     try {
         res = await pool.query(`SELECT * FROM user_account WHERE id = $1`, [id])
 
-        return utils.parseRow(res.rows)
+        return utils.parseRows(res.rows)
     } catch (err) {
         throw err
     }
@@ -95,11 +95,11 @@ const updateById = async (id, values) => {
         const q = utils.valuesToUpdateString(values, updateableCols)
 
         res = await pool.query(
-            `UPDATE user_account SET ${q.string} WHERE id = $1 RETURNING *`,
-            [id].concat(q.values)
+            `UPDATE user_account SET ${q.vars} WHERE id = $1 RETURNING *`,
+            [id].concat(q.vals)
         )
 
-        return utils.parseRow(res.rows)
+        return utils.parseRows(res.rows)
     } catch (err) {
         throw err
     }
