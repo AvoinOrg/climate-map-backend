@@ -41,14 +41,8 @@ router.put('/profile', async (req, res, next) => {
 router.get('/integration', async (req, res, next) => {
     try {
         const integration = await Integration.findByUserId(req.user.id)
-        if (!integration) {
-            res.json({})
-        } else {
-            res.json({
-                vipu_state: integration.vipu_state,
-                metsaan_state: integration.metsaan_state,
-            })
-        }
+
+        res.json(integration)
     } catch (err) {
         return next(err)
     }
@@ -61,7 +55,7 @@ router.put('/integration/:integrationType', async (req, res, next) => {
             req.params.integrationType
         )
 
-        if (req.params.integrationType === "vipu") {
+        if (req.params.integrationType === 'vipu') {
             if (oldIntegration.integration_status === 1) {
                 Vipu.removeData(req.user.id)
             }
@@ -92,11 +86,23 @@ router.post('/integration/:integrationType', async (req, res, next) => {
     }
 })
 
-router.post('/integration/vipu/init', async (req, res, next) => {
+router.get('/integration/:integrationType', async (req, res, next) => {
+    try {
+        const integration = await Integration.findByUserIdAndType(
+            req.user.id,
+            req.params.integrationType
+        )
+
+        res.json(integration)
+    } catch (err) {
+        return next(err)
+    }
+})
+
+router.post('/integration/vipu/auth', async (req, res, next) => {
     try {
         const link = await Vipu.initAuth(
-            req.user.id,
-            req.params.integration_type
+            req.user.id
         )
         res.json({
             integration_link: link,
@@ -106,16 +112,16 @@ router.post('/integration/vipu/init', async (req, res, next) => {
     }
 })
 
-router.get('/integration/vipu', async (req, res, next) => {
+router.get('/integration/vipu/auth', async (req, res, next) => {
     try {
         const status = await Vipu.checkAuth(req.user.id)
 
         if (status === 2) {
-            await Integration.updateByUserId(req.user.id, { vipu_state: 1 })
+            await Integration.updateByUserId(req.user.id, "vipu", { integration_status: 1 })
         }
 
         res.json({
-            integration_status: status,
+            auth_status: status,
         })
     } catch (err) {
         return next(err)

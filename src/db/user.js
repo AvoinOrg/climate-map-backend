@@ -49,6 +49,13 @@ const findByEmail = async (email) => {
             email,
         ])
 
+        if (res.rows.length === 0) {
+            throw {
+                status: 404,
+                message: 'user not found',
+            }
+        }
+
         return utils.parseRows(res.rows)
     } catch (err) {
         throw err
@@ -58,6 +65,14 @@ const findByEmail = async (email) => {
 const findById = async (id) => {
     try {
         res = await pool.query(`SELECT * FROM user_account WHERE id = $1`, [id])
+
+        
+        if (res.rows.length === 0) {
+            throw {
+                status: 404,
+                message: 'user not found',
+            }
+        }
 
         return utils.parseRows(res.rows)
     } catch (err) {
@@ -98,6 +113,13 @@ const updateById = async (id, values) => {
             `UPDATE user_account SET ${q.vars} WHERE id = $1 RETURNING *`,
             [id].concat(q.vals)
         )
+
+        if (res.rows.length === 0) {
+            throw {
+                status: 404,
+                message: 'user not found',
+            }
+        }
 
         return utils.parseRows(res.rows)
     } catch (err) {

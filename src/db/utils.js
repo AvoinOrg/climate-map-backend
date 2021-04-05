@@ -7,11 +7,11 @@ module.exports = {
                 return vals
             }
 
-            for (row in rows) {
+            for (const i in rows) {
                 if (index) {
-                    indexVal = row[index]
-                    delete row[index]
-                    vals[indexVal] = row
+                    const indexVal = rows[i][index]
+                    delete rows[i][index]
+                    vals[indexVal] = rows[i]
                 } else {
                     vals.append(row)
                 }
@@ -52,8 +52,8 @@ module.exports = {
         const vals = []
 
         if (colsBefore >= 1) {
-            vars += ", "
-            cols += ", "
+            vars += ', '
+            cols += ', '
         }
 
         for (v in values) {

@@ -33,8 +33,8 @@ const findByUserId = async (userId) => {
             `SELECT * FROM user_integration WHERE user_account_id = $1`,
             [userId]
         )
-
-        return utils.parseRows(res.rows, false, "integration_status")
+        
+        return utils.parseRows(res.rows, false, "integration_type")
     } catch (err) {
         throw err
     }
@@ -46,6 +46,13 @@ const findByUserIdAndType = async (userId, integrationType) => {
             `SELECT * FROM user_integration WHERE user_account_id = $1 AND integration_type = $2`,
             [userId, integrationType]
         )
+
+        if (res.rows.length === 0) {
+            throw {
+                status: 404,
+                message: 'integration not found',
+            }
+        }
 
         return utils.parseRows(res.rows)
     } catch (err) {
@@ -60,6 +67,14 @@ const updateByUserIdAndType = async (userId, integrationType, values) => {
             `UPDATE user_integration SET ${q.vars} WHERE user_account_id = $1 AND integration_type = $2 RETURNING *`,
             [userId, integrationType].concat(q.vals)
         )
+
+        
+        if (res.rows.length === 0) {
+            throw {
+                status: 404,
+                message: 'integration not found',
+            }
+        }
 
         return utils.parseRows(res.rows)
     } catch (err) {
