@@ -143,28 +143,50 @@ it('updating user password works', async (done) => {
     done()
 })
 
-it('fetching user integrations with token works', async (done) => {
-    const res = await request.get('/user/integrations').query({ token })
+it('fetching user integration with token works', async (done) => {
+    const res = await request.get('/user/integration').query({ token })
     expect(res.status).toBe(200)
-    expect(res.body.metsaan_state).toBe(-1)
-    expect(res.body.vipu_state).toBe(-1)
+
+    expect(res.body).toStrictEqual({})
     done()
 })
 
-it('updating user integrations works', async (done) => {
+it('adding vipu integration works', async (done) => {
+    const data = {"asdf": "asdf"} 
     const res = await request
-        .put('/user/integrations')
+        .post('/user/integration/vipu')
         .query({ token })
-        .send({ metsaan_state: 1, vipu_state: 1 })
+        .send({ integration_data: data })
     expect(res.status).toBe(200)
-    expect(res.body.metsaan_state).toBe(1)
-    expect(res.body.metsaan_state).toBe(1)
+    expect(res.body.integration_data).toStrictEqual(data)
+    done()
+})
+
+it('adding a second vipu integration fails', async (done) => {
+    const data = {"asdf": "asdf"} 
+    const res = await request
+        .post('/user/integration/vipu')
+        .query({ token })
+        .send({ integration_status: 1, integration_data: data })
+    expect(res.status).toBe(409)
+    done()
+})
+
+it('updating user integration works', async (done) => {
+    const data = {"asdf": "asdf"} 
+    const res = await request
+        .put('/user/integration/vipu')
+        .query({ token })
+        .send({ integration_status: 1, integration_data: data })
+    expect(res.status).toBe(200)
+    expect(res.body.integration_status).toBe(1)
+    expect(res.body.integration_data).toStrictEqual(data)
     done()
 })
 
 it('fetching vipu authentication link works', async (done) => {
     const res = await request
-        .post('/user/integrations/vipu/init')
+        .post('/user/integration/vipu/init')
         .query({ token })
     expect(res.status).toBe(200)
     expect(res.body.integration_link).toBeDefined()
@@ -173,7 +195,7 @@ it('fetching vipu authentication link works', async (done) => {
 
 it('vipu authentication status works', async (done) => {
     const res = await request
-        .get('/user/integrations/vipu/status')
+        .get('/user/integration/vipu')
         .query({ token })
     expect(res.status).toBe(200)
     expect(res.body.integration_status).toBe(0)
