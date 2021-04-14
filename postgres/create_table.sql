@@ -9,6 +9,8 @@ CREATE TABLE user_account (
     funnel_state INT DEFAULT 1,
     account_type varchar DEFAULT 'explorer',
     email_verified INT default 0,
+    created_ts TIMESTAMPTZ NOT NULL,
+    last_activity_ts TIMESTAMPTZ,
     UNIQUE(email)
 );
 
@@ -16,9 +18,11 @@ CREATE TABLE user_integration (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_account_id uuid NOT NULL,
     integration_type varchar NOT NULL,
-    integration_status INT DEFAULT -1,
+    integration_status varchar DEFAULT 'initialized',
     integration_data jsonb DEFAULT '{}',
     is_disabled boolean DEFAULT FALSE,
+    first_integrated_ts TIMESTAMPTZ,
+    last_updated_ts TIMESTAMPTZ,
     UNIQUE(user_account_id, integration_type),
     CONSTRAINT fk_user_account
       FOREIGN KEY(user_account_id) 
