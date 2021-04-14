@@ -82,6 +82,20 @@ const updateByUserIdAndType = async (userId, integrationType, values) => {
     }
 }
 
-const user_integration = { create, findByUserId, findByUserIdAndType, updateByUserIdAndType }
+const deleteByUserIdAndType = async (userId, integrationType, values) => {
+    const q = utils.valuesToUpdateString(values, updateableCols, 2)
+    try {
+        res = await pool.query(
+            `DELETE FROM user_integration WHERE user_account_id = $1 AND integration_type = $2`,
+            [userId, integrationType].concat(q.vals)
+        )
+
+        return true
+    } catch (err) {
+        throw err
+    }
+}
+
+const user_integration = { create, findByUserId, findByUserIdAndType, updateByUserIdAndType, deleteByUserIdAndType }
 
 module.exports = user_integration

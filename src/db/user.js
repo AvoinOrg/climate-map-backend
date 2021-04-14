@@ -18,8 +18,8 @@ const create = async (values) => {
 
         res = await pool.query(
             `
-            INSERT INTO user_account (email, password, name, phone_number, account_type) 
-            VALUES($1, $2, $3, $4, $5)
+            INSERT INTO user_account (email, password, name, phone_number, account_type, created_ts) 
+            VALUES($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
             RETURNING *
             `,
             [

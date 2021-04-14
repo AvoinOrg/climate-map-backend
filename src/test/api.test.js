@@ -171,7 +171,6 @@ it('adding vipu integration works', async (done) => {
 it('fetching user integrations with token works', async (done) => {
     const res = await request.get('/user/integration').query({ token })
     expect(res.status).toBe(200)
-    console.log(res.body)
     expect(res.body.vipu).toBeDefined()
     done()
 })
@@ -191,9 +190,9 @@ it('updating user integration works', async (done) => {
     const res = await request
         .put('/user/integration/vipu')
         .query({ token })
-        .send({ integration_status: 1, integration_data: data })
+        .send({ integration_status: "integrated", integration_data: data })
     expect(res.status).toBe(200)
-    expect(res.body.integration_status).toBe(1)
+    expect(res.body.integration_status).toBe("integrated")
     expect(res.body.integration_data).toStrictEqual(data)
     done()
 })
@@ -212,6 +211,22 @@ it('vipu authentication status works', async (done) => {
         .get('/user/integration/vipu/auth')
         .query({ token })
     expect(res.status).toBe(200)
-    expect(res.body.auth_status).toBe(0)
+    expect(res.body.auth_status).toBe("initialized")
+    done()
+})
+
+it('vipu data deletion works', async (done) => {
+    const res = await request
+        .delete('/user/integration/vipu')
+        .query({ token })
+    expect(res.status).toBe(200)
+    done()
+})
+
+it('vipu data deletion returns 404 without integration', async (done) => {
+    const res = await request
+        .delete('/user/integration/vipu')
+        .query({ token })
+    expect(res.status).toBe(404)
     done()
 })

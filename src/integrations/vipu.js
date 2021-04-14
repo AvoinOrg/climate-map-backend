@@ -47,7 +47,7 @@ const initAuth = async (userId) => {
         const vetumaId = parsed['viesti']['data'][0]['$']['arvo']
 
         vetumaIds[userId] = vetumaId
-        statuses[userId] = 0
+        statuses[userId] = 'initialized'
 
         return link
     } catch (err) {
@@ -90,22 +90,22 @@ const checkAuth = async (userId) => {
     }
 
     try {
-        if (statuses[userId] === 0) {
+        if (statuses[userId] === 'initialized') {
             const data = await opengateCheck(vetumaIds[userId])
 
             parsed = await parseXml(data)
             const done = parsed['viesti']['$']['valmis']
-            if (done === 'true' && statuses[userId] === 0) {
+            if (done === 'true' && statuses[userId] === 'initialized') {
                 delete vetumaIds[userId]
                 importFields(userId, data)
-                statuses[userId] = 1
+                statuses[userId] = 'authenticated'
             }
         }
 
         return statuses[userId]
     } catch (err) {
-        statuses[userId] = -1
-        return -1
+        statuses[userId] = 'error'
+        return 'error'
     }
 }
 
@@ -177,9 +177,9 @@ const importFields = async (userId, data) => {
             }),
         ])
 
-        statuses[userId] = 2
+        statuses[userId] = 'imported'
     } catch (err) {
-        statuses[userId] = -1
+        statuses[userId] = 'error'
         console.error(err)
     }
 }
@@ -232,7 +232,13 @@ const removeData = async (userId) => {
     const path = '/data/' + userId + '/'
 
     for (feature of features) {
-        fs.unlinkSync(path + feature.path)
+        try {
+            fs.unlinkSync(path + feature.path)
+        } catch (err) {
+            if (err.code != "ENOENT") {
+                throw (err)
+            }
+        }
     }
 }
 

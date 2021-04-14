@@ -55,18 +55,41 @@ router.put('/integration/:integrationType', async (req, res, next) => {
             req.params.integrationType
         )
 
-        if (req.params.integrationType === 'vipu') {
-            if (oldIntegration.integration_status === 1) {
-                Vipu.removeData(req.user.id)
-            }
-        }
-
         const integration = await Integration.updateByUserIdAndType(
             req.user.id,
             req.params.integrationType,
             req.body
         )
         res.json(integration)
+    } catch (err) {
+        return next(err)
+    }
+})
+
+router.delete('/integration/:integrationType', async (req, res, next) => {
+    try {
+        const oldIntegration = await Integration.findByUserIdAndType(
+            req.user.id,
+            req.params.integrationType
+        )
+
+        if (!oldIntegration) {
+            res.status(404)
+        }
+
+        if (req.params.integrationType === 'vipu') {
+            if (oldIntegration.integration_status === "integrated") {
+                Vipu.removeData(req.user.id)
+            }
+        }
+
+        Integration.deleteByUserIdAndType(
+            req.user.id,
+            req.params.integrationType
+        )
+
+        res.status(200)
+        res.json({message: "deleted"})
     } catch (err) {
         return next(err)
     }
@@ -116,8 +139,8 @@ router.get('/integration/vipu/auth', async (req, res, next) => {
     try {
         const status = await Vipu.checkAuth(req.user.id)
 
-        if (status === 2) {
-            await Integration.updateByUserId(req.user.id, "vipu", { integration_status: 1 })
+        if (status === "imported") {
+            await Integration.updateByUserIdAndType(req.user.id, "vipu", { integration_status: "integrated" })
         }
 
         res.json({
