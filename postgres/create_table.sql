@@ -9,7 +9,7 @@ CREATE TABLE user_account (
     funnel_state INT DEFAULT 0,
     account_type varchar DEFAULT 'explorer',
     email_verified INT DEFAULT 0,
-    created_ts TIMESTAMPTZ NOT NULL,
+    created_ts TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     last_activity_ts TIMESTAMPTZ,
     UNIQUE(email)
 );
