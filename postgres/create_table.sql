@@ -8,7 +8,7 @@ CREATE TABLE user_account (
     phone_number varchar,
     funnel_state INT DEFAULT 1,
     account_type varchar DEFAULT 'explorer',
-    email_verified INT default 0,
+    email_verified INT DEFAULT 0,
     created_ts TIMESTAMPTZ NOT NULL,
     last_activity_ts TIMESTAMPTZ,
     UNIQUE(email)

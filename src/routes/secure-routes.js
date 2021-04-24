@@ -79,11 +79,11 @@ router.delete('/integration/:integrationType', async (req, res, next) => {
 
         if (req.params.integrationType === 'vipu') {
             if (oldIntegration.integration_status === "integrated") {
-                Vipu.removeData(req.user.id)
+                await Vipu.removeData(req.user.id)
             }
         }
 
-        Integration.deleteByUserIdAndType(
+        await Integration.deleteByUserIdAndType(
             req.user.id,
             req.params.integrationType
         )
