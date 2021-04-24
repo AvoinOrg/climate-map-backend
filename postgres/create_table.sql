@@ -6,7 +6,7 @@ CREATE TABLE user_account (
     password varchar NOT NULL,
     name varchar,
     phone_number varchar,
-    funnel_state INT DEFAULT 1,
+    funnel_state INT DEFAULT 0,
     account_type varchar DEFAULT 'explorer',
     email_verified INT DEFAULT 0,
     created_ts TIMESTAMPTZ NOT NULL,
