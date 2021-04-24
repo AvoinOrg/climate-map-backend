@@ -81,6 +81,16 @@ it('login with wrong password fails', async (done) => {
     done()
 })
 
+it('login with wrong email fails', async (done) => {
+    const res = await request
+        .post('/login')
+        .send({ email: "abc@ggg.com", password: user.password })
+    expect(res.status).toBe(401)
+    expect(res.body.expires).not.toBeDefined()
+    expect(res.body.token).not.toBeDefined()
+    done()
+})
+
 it('fetching profile with token works', async (done) => {
     const res = await request.get('/user/profile').query({ token })
     expect(res.status).toBe(200)

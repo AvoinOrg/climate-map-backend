@@ -17,10 +17,19 @@ passport.use(
                 const user = await User.findByEmail(email)
                 const validate = await User.isValidPassword(user, password)
                 if (!validate) {
-                    return done({ status: 401, message: 'invalid username or password' })
+                    return done({
+                        status: 401,
+                        message: 'invalid username or password',
+                    })
                 }
                 return done(null, user, { message: 'logged in successfully' })
             } catch (err) {
+                if (err.status === 404) {
+                    return done({
+                        status: 401,
+                        message: 'invalid username or password',
+                    })
+                }
                 done(err)
             }
         }
