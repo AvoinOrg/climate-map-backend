@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 
 const User = require('../db/user')
 const Integration = require('../db/integration')
+const { findByEmail } = require('../db/user')
 
 const router = express.Router()
 
@@ -42,7 +43,6 @@ const handleLogin = async (req, res, next) => {
 router.post('/signup', async (req, res, next) => {
     try {
         await User.create(req.body)
-
         handleLogin(req, res, next)
     } catch (err) {
         return next(err)

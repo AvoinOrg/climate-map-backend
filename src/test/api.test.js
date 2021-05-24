@@ -34,8 +34,8 @@ const user = {
     email: 'asdf@asdf.com',
     password: 'asdfg1234',
     name: 'Tero Testington',
-    phone_number: '+358 2739556',
-    account_type: 'supporter',
+    phoneNumber: '+358 2739556',
+    accountType: 'supporter',
 }
 
 it('404 works', async (done) => {
@@ -84,7 +84,7 @@ it('login with wrong password fails', async (done) => {
 it('login with wrong email fails', async (done) => {
     const res = await request
         .post('/login')
-        .send({ email: "abc@ggg.com", password: user.password })
+        .send({ email: 'abc@ggg.com', password: user.password })
     expect(res.status).toBe(401)
     expect(res.body.expires).not.toBeDefined()
     expect(res.body.token).not.toBeDefined()
@@ -96,8 +96,8 @@ it('fetching profile with token works', async (done) => {
     expect(res.status).toBe(200)
     expect(res.body.name).toBe(user.name)
     expect(res.body.email).toBe(user.email)
-    expect(res.body.phone_number).toBe(user.phone_number)
-    expect(res.body.account_type).toBe(user.account_type)
+    expect(res.body.phoneNumber).toBe(user.phoneNumber)
+    expect(res.body.accountType).toBe(user.accountType)
     done()
 })
 
@@ -106,7 +106,7 @@ it('fetching profile with wrong token fails', async (done) => {
     expect(res.status).toBe(401)
     expect(res.body.name).not.toBeDefined()
     expect(res.body.email).not.toBeDefined()
-    expect(res.body.phone_number).not.toBeDefined()
+    expect(res.body.phoneNumber).not.toBeDefined()
     done()
 })
 
@@ -128,10 +128,10 @@ it('updating user funnel state works', async (done) => {
     const res = await request
         .put('/user/profile')
         .query({ token })
-        .send({ funnel_state: 2 })
+        .send({ funnelState: 2 })
 
     expect(res.status).toBe(200)
-    expect(res.body.funnel_state).toBe(2)
+    expect(res.body.funnelState).toBe(2)
     done()
 })
 
@@ -139,7 +139,7 @@ it('updating user password works', async (done) => {
     const newPassword = 'ggasdfasg'
     let res = await request.put('/user/profile').query({ token }).send({
         password: user.password,
-        new_password: newPassword,
+        newPassword,
     })
     expect(res.status).toBe(200)
 
@@ -168,13 +168,13 @@ it('fetching an empty user integration with token works', async (done) => {
 })
 
 it('adding vipu integration works', async (done) => {
-    const data = {"asdf": "asdf"} 
+    const data = { asdf: 'asdf' }
     const res = await request
         .post('/user/integration/vipu')
         .query({ token })
-        .send({ integration_data: data })
+        .send({ integrationData: data })
     expect(res.status).toBe(200)
-    expect(res.body.integration_data).toStrictEqual(data)
+    expect(res.body.integrationData).toStrictEqual(data)
     done()
 })
 
@@ -186,24 +186,24 @@ it('fetching user integrations with token works', async (done) => {
 })
 
 it('adding a second vipu integration fails', async (done) => {
-    const data = {"asdf": "asdf"} 
+    const data = { asdf: 'asdf' }
     const res = await request
         .post('/user/integration/vipu')
         .query({ token })
-        .send({ integration_status: 1, integration_data: data })
+        .send({ integrationStatus: 1, integrationData: data })
     expect(res.status).toBe(409)
     done()
 })
 
 it('updating user integration works', async (done) => {
-    const data = {"asdf": "asdf"} 
+    const data = { asdf: 'asdf' }
     const res = await request
         .put('/user/integration/vipu')
         .query({ token })
-        .send({ integration_status: "integrated", integration_data: data })
+        .send({ integrationStatus: 'integrated', integrationData: data })
     expect(res.status).toBe(200)
-    expect(res.body.integration_status).toBe("integrated")
-    expect(res.body.integration_data).toStrictEqual(data)
+    expect(res.body.integrationStatus).toBe('integrated')
+    expect(res.body.integrationData).toStrictEqual(data)
     done()
 })
 
@@ -212,7 +212,7 @@ it('initiating vipu authentication link works', async (done) => {
         .post('/user/integration/vipu/auth')
         .query({ token })
     expect(res.status).toBe(200)
-    expect(res.body.auth_link).toBeDefined()
+    expect(res.body.authLink).toBeDefined()
     done()
 })
 
@@ -221,22 +221,18 @@ it('vipu authentication status works', async (done) => {
         .get('/user/integration/vipu/auth')
         .query({ token })
     expect(res.status).toBe(200)
-    expect(res.body.auth_status).toBe("initialized")
+    expect(res.body.authStatus).toBe('initialized')
     done()
 })
 
 it('vipu data deletion works', async (done) => {
-    const res = await request
-        .delete('/user/integration/vipu')
-        .query({ token })
+    const res = await request.delete('/user/integration/vipu').query({ token })
     expect(res.status).toBe(200)
     done()
 })
 
 it('vipu data deletion returns 404 without integration', async (done) => {
-    const res = await request
-        .delete('/user/integration/vipu')
-        .query({ token })
+    const res = await request.delete('/user/integration/vipu').query({ token })
     expect(res.status).toBe(404)
     done()
 })

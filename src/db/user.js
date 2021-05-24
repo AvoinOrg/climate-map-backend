@@ -26,8 +26,8 @@ const create = async (values) => {
                 values.email,
                 hash,
                 values.name,
-                values.phone_number,
-                values.account_type,
+                values.phoneNumber,
+                values.accountType,
             ]
         )
         return utils.parseRows(res.rows)
@@ -90,7 +90,7 @@ const updateById = async (id, values) => {
             keys.includes('password') ||
             keys.includes('email') ||
             keys.includes('name') ||
-            keys.includes('phone_number')
+            keys.includes('phoneNumber')
         ) {
             if (!isValidPassword(user, values.password)) {
                 throw {
@@ -100,8 +100,8 @@ const updateById = async (id, values) => {
             }
         }
 
-        if (values.new_password) {
-            const hash = await bcrypt.hash(values.new_password, 10)
+        if (values.newPassword) {
+            const hash = await bcrypt.hash(values.newPassword, 10)
             values.password = hash
         } else {
             delete values.password

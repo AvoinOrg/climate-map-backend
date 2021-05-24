@@ -2,7 +2,7 @@ FROM node:15.0
 
 ENV JWT_SECRET=${JWT_SECRET}
 
-run apt-get update && apt-get install gdal-bin -y
+RUN apt-get update && apt-get install gdal-bin -y
 
 RUN mkdir -p /home/node/app/node_modules
 

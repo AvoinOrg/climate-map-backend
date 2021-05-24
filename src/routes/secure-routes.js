@@ -14,9 +14,10 @@ router.get('/profile', async (req, res, next) => {
         res.json({
             email: user.email,
             name: user.name,
-            phone_number: user.phone_number,
-            account_type: user.account_type,
-            funnel_state: user.funnel_state,
+            phoneNumber: user.phoneNumber,
+            accountType: user.accountType,
+            funnelState: user.funnelState,
+            emailVerified: user.emailVerified,
         })
     } catch (err) {
         return next(err)
@@ -29,9 +30,9 @@ router.put('/profile', async (req, res, next) => {
         res.json({
             email: user.email,
             name: user.name,
-            phone_number: user.phone_number,
-            account_type: user.account_type,
-            funnel_state: user.funnel_state,
+            phoneNumber: user.phoneNumber,
+            accountType: user.accountType,
+            funnelState: user.funnelState,
         })
     } catch (err) {
         return next(err)
@@ -78,7 +79,7 @@ router.delete('/integration/:integrationType', async (req, res, next) => {
         }
 
         if (req.params.integrationType === 'vipu') {
-            if (oldIntegration.integration_status === "integrated") {
+            if (oldIntegration.integration_status === 'integrated') {
                 await Vipu.removeData(req.user.id)
             }
         }
@@ -89,7 +90,7 @@ router.delete('/integration/:integrationType', async (req, res, next) => {
         )
 
         res.status(200)
-        res.json({message: "deleted"})
+        res.json({ message: 'deleted' })
     } catch (err) {
         return next(err)
     }
@@ -124,11 +125,9 @@ router.get('/integration/:integrationType', async (req, res, next) => {
 
 router.post('/integration/vipu/auth', async (req, res, next) => {
     try {
-        const link = await Vipu.initAuth(
-            req.user.id
-        )
+        const link = await Vipu.initAuth(req.user.id)
         res.json({
-            auth_link: link,
+            authLink: link,
         })
     } catch (err) {
         return next(err)
@@ -139,12 +138,14 @@ router.get('/integration/vipu/auth', async (req, res, next) => {
     try {
         const status = await Vipu.checkAuth(req.user.id)
 
-        if (status === "imported") {
-            await Integration.updateByUserIdAndType(req.user.id, "vipu", { integration_status: "integrated" })
+        if (status === 'imported') {
+            await Integration.updateByUserIdAndType(req.user.id, 'vipu', {
+                integrationStatus: 'integrated',
+            })
         }
 
         res.json({
-            auth_status: status,
+            authStatus: status,
         })
     } catch (err) {
         return next(err)

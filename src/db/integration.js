@@ -34,7 +34,7 @@ const findByUserId = async (userId) => {
             [userId]
         )
         
-        return utils.parseRows(res.rows, false, "integration_type")
+        return utils.parseRows(res.rows, false, "integrationType")
     } catch (err) {
         throw err
     }
