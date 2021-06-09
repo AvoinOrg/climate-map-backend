@@ -12,6 +12,7 @@
         "test:watch": "NODE_ENV=test jest --watchAll --env=node"
     },
     "dependencies": {
+        "@aws-sdk/client-ses": "^3.17.0",
         "axios": "^0.21.0",
         "bcrypt": "^5.0.0",
         "body-parser": "^1.19.0",
