@@ -4,7 +4,8 @@ const cors = require('cors')
 
 require('./utils/auth')
 const routes = require('./routes/routes')
-const secureRoutes = require('./routes/secure-routes')
+const userRoutes = require('./routes/user-routes')
+const verificationRoutes = require('./routes/verification-routes')
 
 const app = express().use("*", cors())
 
@@ -22,7 +23,8 @@ app.use(express.json())
 // })
 
 app.use('/', routes)
-app.use('/user', passport.authenticate('jwt', { session: false }), secureRoutes)
+app.use('/user', passport.authenticate('loginJWT', { session: false }), userRoutes)
+app.use('/verify', passport.authenticate('verificationJWT', { session: false }), verificationRoutes)
 
 app.get('*', (req, res) => {
     res.status(404)
