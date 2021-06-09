@@ -16,6 +16,7 @@ passport.use(
             try {
                 const user = await User.findByEmail(email)
                 const validate = await User.isValidPassword(user, password)
+
                 if (!validate) {
                     return done({
                         status: 401,
@@ -37,9 +38,27 @@ passport.use(
 )
 
 passport.use(
+    'loginJWT',
     new JWTstrategy(
         {
             secretOrKey: process.env.JWT_SECRET,
+            jwtFromRequest: ExtractJWT.fromUrlQueryParameter('token'),
+        },
+        async (token, done) => {
+            try {
+                return done(null, token.user)
+            } catch (err) {
+                done(err)
+            }
+        }
+    )
+)
+
+passport.use(
+    'verificationJWT',
+    new JWTstrategy(
+        {
+            secretOrKey: process.env.JWT_VERIFICATION_SECRET,
             jwtFromRequest: ExtractJWT.fromUrlQueryParameter('token'),
         },
         async (token, done) => {
