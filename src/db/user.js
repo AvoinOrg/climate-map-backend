@@ -127,6 +127,26 @@ const updateById = async (id, values) => {
     }
 }
 
+const setEmailVerificationById = async (id, val) => {
+    try {
+        res = await pool.query(
+            `UPDATE user_account SET email_verified = $2 WHERE id = $1 RETURNING *`,
+            [id, val]
+        )
+
+        if (res.rows.length === 0) {
+            throw {
+                status: 404,
+                message: 'user not found',
+            }
+        }
+
+        return utils.parseRows(res.rows)
+    } catch (err) {
+        throw err
+    }
+}
+
 const isValidPassword = async (user, password) => {
     let compare = false
     if (user) {
@@ -135,6 +155,6 @@ const isValidPassword = async (user, password) => {
     return compare
 }
 
-const User = { create, findByEmail, findById, updateById, isValidPassword }
+const User = { create, findByEmail, findById, updateById, isValidPassword, setEmailVerificationById }
 
 module.exports = User
