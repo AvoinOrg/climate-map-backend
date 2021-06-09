@@ -236,3 +236,9 @@ it('vipu data deletion returns 404 without integration', async (done) => {
     expect(res.status).toBe(404)
     done()
 })
+
+it('verification email sending fails (because of invalid tokens)', async (done) => {
+    const res = await request.post('/user/verify').query({ token })
+    expect(res.status).toBe(500)
+    done()
+})
