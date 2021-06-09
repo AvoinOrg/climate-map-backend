@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken')
 
 const User = require('../db/user')
 const Integration = require('../db/integration')
-const { findByEmail } = require('../db/user')
 
 const router = express.Router()
 
