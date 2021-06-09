@@ -1,12 +1,16 @@
 const express = require('express')
 const fs = require('fs')
 const { pipeline } = require('stream/promises')
+const jwt = require('jsonwebtoken')
 
 const User = require('../db/user')
 const Integration = require('../db/integration')
 const Vipu = require('../integrations/vipu')
+const Email = require('../utils/email.js')
 
 const router = express.Router()
+
+const verification_secret = process.env.JWT_VERIFICATION_SECRET
 
 router.get('/profile', async (req, res, next) => {
     try {
@@ -79,7 +83,7 @@ router.delete('/integration/:integrationType', async (req, res, next) => {
         }
 
         if (req.params.integrationType === 'vipu') {
-            if (oldIntegration.integration_status === 'integrated') {
+            if (oldIntegration.integrationStatus === 'integrated') {
                 await Vipu.removeData(req.user.id)
             }
         }
@@ -91,6 +95,28 @@ router.delete('/integration/:integrationType', async (req, res, next) => {
 
         res.status(200)
         res.json({ message: 'deleted' })
+    } catch (err) {
+        return next(err)
+    }
+})
+
+router.post('/verify', async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id)
+        if (user) {
+            const expiresIn = 86400
+
+            const body = { email: user.email }
+            const ts = Math.floor(Date.now())
+            const token = jwt.sign({ user: body }, verification_secret, {
+                expiresIn: expiresIn,
+            })
+
+            await Email.sendVerification(user.email, token)
+
+            res.status(200)
+            res.json({ message: 'verification email sent' })
+        }
     } catch (err) {
         return next(err)
     }
