@@ -235,7 +235,7 @@ const removeData = async (userId) => {
         try {
             fs.unlinkSync(path + feature.path)
         } catch (err) {
-            if (err.code != "ENOENT") {
+            if (err.code !== "ENOENT") {
                 throw (err)
             }
         }
