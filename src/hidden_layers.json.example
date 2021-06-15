@@ -1,0 +1,6 @@
+{
+    "hidden-layer": {
+        "allowedDomains": ["testtest.test", "testtest.org"],
+        "fileNames": ["hidden-layer.geojson", "hidden-layer-outlines.json"]
+    }
+}
