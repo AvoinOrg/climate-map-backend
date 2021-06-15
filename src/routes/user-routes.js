@@ -9,6 +9,7 @@ const Vipu = require('../integrations/vipu')
 const Email = require('../utils/email.js')
 
 const router = express.Router()
+const hiddenLayers = JSON.parse(fs.readFileSync('hidden_layers.json'))
 
 const verification_secret = process.env.JWT_VERIFICATION_SECRET
 
@@ -123,6 +124,12 @@ router.post('/verify', async (req, res, next) => {
 })
 
 router.post('/integration/:integrationType', async (req, res, next) => {
+    for (const layer in hiddenLayers) {
+        if (layer === req.params.integrationType) {
+            res.status(403)
+        }
+    }
+
     try {
         integration = await Integration.create(
             req.user.id,
@@ -130,6 +137,7 @@ router.post('/integration/:integrationType', async (req, res, next) => {
             req.body
         )
 
+        res.status(200)
         res.json(integration)
     } catch (err) {
         return next(err)
