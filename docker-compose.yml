@@ -24,6 +24,7 @@ services:
     volumes:
         - ./src/:/home/node/app:z
         - ./data:/data:z
+        - ./hidden-data:/hidden-data:z
         - sql_scripts:/sql_scripts:z
 
 volumes:

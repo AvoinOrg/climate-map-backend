@@ -107,3 +107,7 @@ dist
 postgres/database/**
 
 data/**
+
+hidden-data/**
+
+src/hidden_layers.json
