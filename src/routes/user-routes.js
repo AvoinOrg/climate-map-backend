@@ -48,7 +48,12 @@ router.get('/integration', async (req, res, next) => {
     try {
         const integration = await Integration.findByUserId(req.user.id)
 
-        res.json(integration)
+        const data = {}
+        data.integrationType = integration.integrationType
+        data.integrationStatus = integration.integrationStatus
+        data.integrationData = integration.integrationData
+
+        res.json(data)
     } catch (err) {
         return next(err)
     }
@@ -66,7 +71,13 @@ router.put('/integration/:integrationType', async (req, res, next) => {
             req.params.integrationType,
             req.body
         )
-        res.json(integration)
+
+        const data = {}
+        data.integrationType = integration.integrationType
+        data.integrationStatus = integration.integrationStatus
+        data.integrationData = integration.integrationData
+
+        res.json(data)
     } catch (err) {
         return next(err)
     }
@@ -137,8 +148,13 @@ router.post('/integration/:integrationType', async (req, res, next) => {
             req.body
         )
 
+        const data = {}
+        data.integrationType = integration.integrationType
+        data.integrationStatus = integration.integrationStatus
+        data.integrationData = integration.integrationData
+
         res.status(200)
-        res.json(integration)
+        res.json(data)
     } catch (err) {
         return next(err)
     }
@@ -151,7 +167,12 @@ router.get('/integration/:integrationType', async (req, res, next) => {
             req.params.integrationType
         )
 
-        res.json(integration)
+        const data = {}
+        data.integrationType = integration.integrationType
+        data.integrationStatus = integration.integrationStatus
+        data.integrationData = integration.integrationData
+
+        res.json(data)
     } catch (err) {
         return next(err)
     }
