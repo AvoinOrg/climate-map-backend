@@ -42,7 +42,6 @@ router.post('', async (req, res, next) => {
         await Promise.allSettled(
             integrations.map(async (integration) => {
                 try {
-                    console.log(integration)
                     await Integration.create(user.id, integration)
                     await HiddenLayers.initData(integration, user.id)
                     await Integration.updateByUserIdAndType(
