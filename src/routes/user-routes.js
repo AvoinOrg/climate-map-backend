@@ -46,12 +46,18 @@ router.put('/profile', async (req, res, next) => {
 
 router.get('/integration', async (req, res, next) => {
     try {
-        const integration = await Integration.findByUserId(req.user.id)
+        const integrations = await Integration.findByUserId(req.user.id)
 
         const data = {}
-        data.integrationType = integration.integrationType
-        data.integrationStatus = integration.integrationStatus
-        data.integrationData = integration.integrationData
+
+        for (const key of Object.keys(integrations)) {
+            const integration = {}
+            integration.integrationType = integrations[key].integrationType
+            integration.integrationStatus = integrations[key].integrationStatus
+            integration.integrationData = integrations[key].integrationData
+
+            data[key] = integration
+        }
 
         res.json(data)
     } catch (err) {
@@ -61,7 +67,7 @@ router.get('/integration', async (req, res, next) => {
 
 router.put('/integration/:integrationType', async (req, res, next) => {
     try {
-        const oldIntegration = await Integration.findByUserIdAndType(
+        await Integration.findByUserIdAndType(
             req.user.id,
             req.params.integrationType
         )
