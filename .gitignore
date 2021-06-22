@@ -104,10 +104,14 @@ dist
 # TernJS port file
 .tern-port
 
-postgres/database/**
+postgres/database/*
 
-data/**
+data/*
 
-hidden-data/**
+hidden-data/*
+
+!hidden-data/test-layer
+!hidden-data/test-layer-xyz
+!hidden-data/some-data
 
 src/hidden_layers.json
