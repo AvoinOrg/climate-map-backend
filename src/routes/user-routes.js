@@ -11,7 +11,7 @@ const Email = require('../utils/email.js')
 const router = express.Router()
 const hiddenLayers = JSON.parse(fs.readFileSync('hidden_layers.json'))
 
-const verification_secret = process.env.JWT_VERIFICATION_SECRET
+const verificationSecret = process.env.JWT_VERIFICATION_SECRET
 
 router.get('/profile', async (req, res, next) => {
     try {
@@ -126,7 +126,7 @@ router.post('/verify', async (req, res, next) => {
 
             const body = { email: user.email }
             const ts = Math.floor(Date.now())
-            const token = jwt.sign({ user: body }, verification_secret, {
+            const token = jwt.sign({ user: body }, verificationSecret, {
                 expiresIn: expiresIn,
             })
 
