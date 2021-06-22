@@ -2,6 +2,7 @@ const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses')
 
 const REGION = process.env.SES_REGION
 const SENDER = process.env.SENDER_EMAIL
+const isTest = process.env.NODE_ENV === 'test' ? true : false
 
 const sesClient = new SESClient({ region: REGION })
 
@@ -35,6 +36,11 @@ https://map.avoin.org/verify/${token}`
     }
 
     try {
+        if (isTest) {
+            console.debug("email token: " + token)
+            return true
+        }
+
         const data = await sesClient.send(new SendEmailCommand(params))
         return data
     } catch (err) {
