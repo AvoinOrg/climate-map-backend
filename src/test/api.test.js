@@ -11,24 +11,7 @@ const createTableQuery = fs
 const dropTableQuery = fs.readFileSync('/sql_scripts/drop_table.sql').toString()
 
 let token = ''
-
-beforeAll(async () => {
-    const client = new Client({
-        host: process.env.POSTGRES_HOST,
-        user: process.env.POSTGRES_USER,
-        database: process.env.POSTGRES_DB,
-        password: process.env.POSTGRES_PASSWORD,
-        port: process.env.POSTGRES_PORT,
-    })
-    await client.connect()
-
-    // await client.query(dropTableQuery, (err, res) => {
-    //     client.end()
-    // })
-    await client.query(dropTableQuery)
-    await client.query(createTableQuery)
-    await client.end()
-})
+let verificationToken = ''
 
 const user = {
     email: 'asdf@asdf.com',
@@ -37,6 +20,38 @@ const user = {
     phoneNumber: '+358 2739556',
     accountType: 'supporter',
 }
+
+const createClient = () => {
+    return new Client({
+        host: process.env.POSTGRES_HOST,
+        user: process.env.POSTGRES_USER,
+        database: process.env.POSTGRES_DB,
+        password: process.env.POSTGRES_PASSWORD,
+        port: process.env.POSTGRES_PORT,
+        query_timeout: 1000,
+    })
+}
+
+const client = createClient()
+client.connect()
+
+beforeAll(async () => {
+    // await client.query(dropTableQuery, (err, res) => {
+    //     client.end()
+    // })
+    await client.query(dropTableQuery)
+    await client.query(createTableQuery)
+})
+
+afterAll(async () => {
+    await client.query(`SELECT * FROM user_account WHERE email = $1`, [
+        user.email,
+    ])
+    const id = res.rows[0].user_account_id
+    await client.end()
+
+    fs.rmdirSync('/data/' + id, { recursive: true })
+})
 
 it('404 works', async (done) => {
     const res = await request.get('/asdasdafssfasf')
@@ -275,12 +290,11 @@ it('fetch new integrations after verification work', async (done) => {
     done()
 })
 
-
 it('fetching hidden integration data works', async (done) => {
     const res = await request
-    .get('/user/data')
-    .query({ token, file: 'some-data/stuff.geojson' })
-    
+        .get('/user/data')
+        .query({ token, file: 'some-data/stuff.geojson' })
+
     expect(res.status).toBe(200)
     done()
 })
