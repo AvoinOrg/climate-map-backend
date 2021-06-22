@@ -7,6 +7,7 @@ const User = require('../db/user')
 const Integration = require('../db/integration')
 const Vipu = require('../integrations/vipu')
 const Email = require('../utils/email.js')
+const HiddenLayers = require('../integrations/hidden')
 
 const router = express.Router()
 const hiddenLayers = JSON.parse(fs.readFileSync('hidden_layers.json'))
@@ -16,6 +17,7 @@ const verificationSecret = process.env.JWT_VERIFICATION_SECRET
 router.get('/profile', async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id)
+
         res.json({
             email: user.email,
             name: user.name,
@@ -46,7 +48,16 @@ router.put('/profile', async (req, res, next) => {
 
 router.get('/integration', async (req, res, next) => {
     try {
-        const integrations = await Integration.findByUserId(req.user.id)
+        let integrations = await Integration.findByUserId(req.user.id)
+        const user = await User.findById(req.user.id)
+
+        if (user.emailVerified) {
+            const updateCount = await HiddenLayers.initAll(user, integrations)
+
+            if (updateCount > 0) {
+                integrations = await Integration.findByUserId(req.user.id)
+            }
+        }
 
         const data = {}
 

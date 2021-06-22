@@ -6,7 +6,7 @@ const hiddenLayerPath =
     process.env.NODE_ENV === 'test'
         ? 'hidden_layers.json.example'
         : 'hidden_layers.json'
-        
+
 const hiddenLayers = JSON.parse(fs.readFileSync(hiddenLayerPath))
 const Integration = require('../db/integration')
 
@@ -64,25 +64,37 @@ const removeData = async (layer, userId) => {
     )
 }
 
-const initAll = async (user) => {
+const initAll = async (user, existingIntegrations = {}) => {
     const domain = user.email.split('@')[1]
     const integrations = searchLayers(domain)
 
+    let updateCount = 0
+
     await Promise.allSettled(
         integrations.map(async (integration) => {
-            try {
-                await Integration.create(user.id, integration)
-                await initData(integration, user.id)
-                await Integration.updateByUserIdAndType(user.id, integration, {
-                    integration_status: 'integrated',
-                })
-            } catch (err) {
-                if (!err.status || err.status !== 409) {
-                    console.error(err)
+            if (!existingIntegrations[integration]) {
+                try {
+                    await Integration.create(user.id, integration)
+                    await initData(integration, user.id)
+                    await Integration.updateByUserIdAndType(
+                        user.id,
+                        integration,
+                        {
+                            integration_status: 'integrated',
+                        }
+                    )
+
+                    updateCount++
+                } catch (err) {
+                    if (!err.status || err.status !== 409) {
+                        console.error(err)
+                    }
                 }
             }
         })
     )
+
+    return updateCount
 }
 
 module.exports = { initData, removeData, initAll }
