@@ -111,7 +111,7 @@ it('fetching profile with wrong token fails', async (done) => {
 })
 
 it('updating user profile works', async (done) => {
-    user.email = 'dd@gg.com'
+    user.email = 'dd@test.test'
     user.name = 'Bur Bo'
     const res = await request
         .put('/user/profile')
@@ -237,8 +237,59 @@ it('vipu data deletion returns 404 without integration', async (done) => {
     done()
 })
 
-it('verification email sending fails (because of invalid tokens)', async (done) => {
+it('mock verification email sending works', async (done) => {
+    const consoleSpy = jest.spyOn(console, 'debug')
     const res = await request.post('/user/verify').query({ token })
-    expect(res.status).toBe(500)
+    expect(res.status).toBe(200)
+
+    // find token sent to email so that the account can be verified
+    for (const a of consoleSpy.mock.calls) {
+        const parts = a[0].split(': ')
+        if (parts[0] === 'email token') {
+            expect(parts[1].length).toBeGreaterThan(0)
+
+            verificationToken = parts[1]
+            break
+        }
+    }
+    done()
+})
+
+it('email verification works', async (done) => {
+    const res = await request
+        .post('/verify')
+        .query({ token: verificationToken })
+
+    expect(res.status).toBe(200)
+    done()
+})
+
+it('fetch new integrations after verification work', async (done) => {
+    const res = await request.get('/user/integration').query({ token })
+
+    expect(res.status).toBe(200)
+    expect(res.body['hidden-layer'].integrationStatus).toBe('integrated')
+    expect(res.body['another-hidden-layer'].integrationStatus).toBe(
+        'integrated'
+    )
+    done()
+})
+
+
+it('fetching hidden integration data works', async (done) => {
+    const res = await request
+    .get('/user/data')
+    .query({ token, file: 'some-data/stuff.geojson' })
+    
+    expect(res.status).toBe(200)
+    done()
+})
+
+it('fetching hidden integration data from a nested folder works', async (done) => {
+    const res = await request
+        .get('/user/data')
+        .query({ token, file: 'test-layer-xyz/0/0/0.png' })
+
+    expect(res.status).toBe(200)
     done()
 })
