@@ -1,10 +1,10 @@
 {
     "hidden-layer": {
-        "allowedDomains": ["testtest.test", "testtest.org"],
-        "fileNames": ["hidden-layer.geojson", "hidden-layer-outlines.json"]
+        "allowedDomains": ["test.test", "testtest.org", "asdf.com"],
+        "dirNames": ["test-layer", "test-layer-xyz"]
     },
     "another-hidden-layer": {
-        "allowedDomains": ["example.com"],
-        "fileNames": ["some-data.file"]
+        "allowedDomains": ["example.com", "test.test"],
+        "dirNames": ["some-data"]
     }
 }
