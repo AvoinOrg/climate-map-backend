@@ -1,7 +1,27 @@
 const fs = require('fs')
 
 const hiddenDataDir = process.env.HIDDEN_DATA_DIR
-const hiddenLayers = JSON.parse(fs.readFileSync('hidden_layers.json'))
+
+const hiddenLayerPath =
+    process.env.NODE_ENV === 'test'
+        ? 'hidden_layers.json.example'
+        : 'hidden_layers.json'
+        
+const hiddenLayers = JSON.parse(fs.readFileSync(hiddenLayerPath))
+const Integration = require('../db/integration')
+
+const searchLayers = (domain) => {
+    const integrations = []
+    const d = domain.toLowerCase()
+
+    for (const layer in hiddenLayers) {
+        if (hiddenLayers[layer].allowedDomains.includes(d)) {
+            integrations.push(layer)
+        }
+    }
+
+    return integrations
+}
 
 const initData = async (layer, userId) => {
     let path = '/data/' + userId
@@ -13,11 +33,11 @@ const initData = async (layer, userId) => {
     path += '/'
 
     await Promise.all(
-        hiddenLayers[layer].fileNames.map(async (fileName) => {
+        hiddenLayers[layer].dirNames.map(async (dirName) => {
             try {
                 await fs.promises.symlink(
-                    hiddenDataDir + '/' + layer + '/' + fileName,
-                    path + fileName
+                    hiddenDataDir + '/' + dirName,
+                    path + dirName
                 )
             } catch (err) {
                 if (err.code !== 'EEXIST') {
@@ -32,9 +52,9 @@ const removeData = async (layer, userId) => {
     const path = '/data/' + userId + '/'
 
     await Promise.all(
-        hiddenLayers[layer].fileNames.map(async (fileName) => {
+        hiddenLayers[layer].dirNames.map(async (dirName) => {
             try {
-                fs.unlinkSync(path + fileName)
+                fs.unlinkSync(path + dirName)
             } catch (err) {
                 if (err.code !== 'ENOENT') {
                     throw err
@@ -44,4 +64,25 @@ const removeData = async (layer, userId) => {
     )
 }
 
-module.exports = { initData, removeData }
+const initAll = async (user) => {
+    const domain = user.email.split('@')[1]
+    const integrations = searchLayers(domain)
+
+    await Promise.allSettled(
+        integrations.map(async (integration) => {
+            try {
+                await Integration.create(user.id, integration)
+                await initData(integration, user.id)
+                await Integration.updateByUserIdAndType(user.id, integration, {
+                    integration_status: 'integrated',
+                })
+            } catch (err) {
+                if (!err.status || err.status !== 409) {
+                    console.error(err)
+                }
+            }
+        })
+    )
+}
+
+module.exports = { initData, removeData, initAll }
