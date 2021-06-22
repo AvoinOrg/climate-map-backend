@@ -47,7 +47,7 @@ afterAll(async () => {
     await client.query(`SELECT * FROM user_account WHERE email = $1`, [
         user.email,
     ])
-    const id = res.rows[0].user_account_id
+    const id = res.rows[0].id
     await client.end()
 
     fs.rmdirSync('/data/' + id, { recursive: true })
