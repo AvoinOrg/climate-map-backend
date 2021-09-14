@@ -15,6 +15,7 @@ services:
       - ./hidden-data:/hidden-data:z
     networks:
       - proxy-net
+    restart: unless-stopped
 
 networks:
   proxy-net:
