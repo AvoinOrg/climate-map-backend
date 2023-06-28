@@ -1,4 +1,4 @@
-FROM node:15.0
+FROM node:18
 
 ENV JWT_SECRET=${JWT_SECRET}
 
